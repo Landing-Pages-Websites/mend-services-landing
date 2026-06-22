@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  /* Forest green — primary action / dark sections */
+  --color-brand-50: #eef5ee;
+  --color-brand-100: #d6e7d8;
+  --color-brand-200: #aecdb2;
+  --color-brand-300: #7fae86;
+  --color-brand-400: #3f7a55;
+  --color-brand-500: #0e542c;
+  --color-brand-600: #0a4022;
+  --color-brand-700: #08361c;
+  --color-brand-800: #062b17;
+  --color-brand-900: #042011;
+
+  /* Deep forest — depth / dark bands */
+  --color-forest-700: #0a4022;
+  --color-forest-800: #08361c;
+  --color-forest-900: #062b17;
+  --color-forest-950: #04200f;
+
+  /* Leaf green accent — highlights, underlines, icon fills (used with restraint) */
+  --color-leaf-300: #a7da8a;
+  --color-leaf-400: #88cc65;
+  --color-leaf-500: #6cbc44;
+  --color-leaf-600: #56a032;
+
+  /* Neutrals (brand token roles) */
+  --color-surface: #f4f7f1;
+  --color-line: #e2e8dc;
+  --color-muted: #5b6b5e;
+  --color-ink: #1a2a1e;
+
+  /* Semantic states */
+  --color-success: #12805c;
+  --color-error: #d92d20;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --animate-fade-in: fadeIn 0.6s ease-out both;
+  --animate-fade-up: fadeUp 0.6s ease-out both;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@utility container-max {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  /* Anchor offset for the sticky header */
+  section[id],
+  div[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}

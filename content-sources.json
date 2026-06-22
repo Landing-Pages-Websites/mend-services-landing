@@ -1,0 +1,18 @@
+{
+  "claims": [
+    { "claim": "25+ years in business", "source_url": "https://tlcscape.com", "verified": true },
+    { "claim": "1,000+ completed projects", "source_url": "https://tlcscape.com/about", "verified": true },
+    { "claim": "12-month workmanship warranty", "source_url": "https://tlcscape.com/about", "verified": true },
+    { "claim": "Owner-operated (Todd)", "source_url": "https://tlcscape.com", "verified": true },
+    { "claim": "65+ years of combined crew experience", "source_url": "https://tlcscape.com", "verified": true },
+    { "claim": "Core values: Doing It Right The First Time, Artful Design, Meticulous Detail, Unparalleled Customer Service, Craftsmanship Quality", "source_url": "https://tlcscape.com", "verified": true },
+    { "claim": "Serves Boise & the Treasure Valley (Eagle, Meridian, Garden City, Hidden Springs, Star)", "source_url": "https://tlcscape.com", "verified": true }
+  ],
+  "testimonials": [
+    { "claim": "Michael review — backyard redesign + front yard water system", "source_url": "https://tlcscape.com", "verified": true },
+    { "claim": "Homeowner review — transformed messy yard into beautiful garden space", "source_url": "https://tlcscape.com", "verified": true }
+  ],
+  "faq": [
+    { "claim": "Project cost is custom/scope-dependent; no specific dollar figure claimed", "source_url": "https://tlcscape.com", "verified": true }
+  ]
+}
