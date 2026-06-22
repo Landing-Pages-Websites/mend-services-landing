@@ -3,10 +3,10 @@
 import { useEffect, useCallback, useRef } from "react";
 
 // Lead routing is keyed off SITE_ID on the MEGA side (→ ServiceTitan CRM + email
-// to the Mend team). customer_id is resolved server-side from the site, so it is
-// left empty here rather than carrying a stale value.
+// to the Mend team). customer_id is NOT resolved server-side from the site — the
+// submission endpoint requires a non-empty customer_id, so it must be sent here.
 const CONFIG = {
-  CUSTOMER_ID: "",
+  CUSTOMER_ID: "6d925db8-c1bd-4cf5-9b94-2d3dad9bfc3b",
   SITE_ID: "052115f8-dc18-4a06-88b3-3bc4bfb437ae",
   SOURCE_PROVIDER: "mend-services-landing",
   ENDPOINT: "https://analytics.gomega.ai/submission/submit",
