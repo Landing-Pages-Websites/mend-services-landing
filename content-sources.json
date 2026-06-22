@@ -1,18 +1,21 @@
 {
   "claims": [
-    { "claim": "25+ years in business", "source_url": "https://tlcscape.com", "verified": true },
-    { "claim": "1,000+ completed projects", "source_url": "https://tlcscape.com/about", "verified": true },
-    { "claim": "12-month workmanship warranty", "source_url": "https://tlcscape.com/about", "verified": true },
-    { "claim": "Owner-operated (Todd)", "source_url": "https://tlcscape.com", "verified": true },
-    { "claim": "65+ years of combined crew experience", "source_url": "https://tlcscape.com", "verified": true },
-    { "claim": "Core values: Doing It Right The First Time, Artful Design, Meticulous Detail, Unparalleled Customer Service, Craftsmanship Quality", "source_url": "https://tlcscape.com", "verified": true },
-    { "claim": "Serves Boise & the Treasure Valley (Eagle, Meridian, Garden City, Hidden Springs, Star)", "source_url": "https://tlcscape.com", "verified": true }
+    { "claim": "4.9-star Google rating", "source_url": "https://mendservices.com/reviews/", "verified": true },
+    { "claim": "One-year parts and labor warranty", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "Same-day scheduling", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "24/7 emergency service", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "Licensed master professionals (HVAC, plumbing, electrical)", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "Whole-home HVAC, plumbing and electrical under one roof", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "Free estimates on system replacements", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "'We live and work here too' / 'Trade Up' experience — real communication, showing up when promised", "source_url": "https://mendservices.com/", "verified": true },
+    { "claim": "Campaign phone number (737) 249-6457 (CTM-tracked Google Ads number)", "source_url": "Mend Google Ads campaign brief", "verified": true },
+    { "claim": "Serves Greater Austin: Austin, Round Rock, Cedar Park, Leander, Pflugerville, Georgetown, Kyle, Buda, Lakeway, Bee Cave, Dripping Springs, Hutto, Manor, San Marcos, Spicewood, Wimberley", "source_url": "https://mendservices.com/service-areas/", "verified": true }
   ],
   "testimonials": [
-    { "claim": "Michael review — backyard redesign + front yard water system", "source_url": "https://tlcscape.com", "verified": true },
-    { "claim": "Homeowner review — transformed messy yard into beautiful garden space", "source_url": "https://tlcscape.com", "verified": true }
-  ],
-  "faq": [
-    { "claim": "Project cost is custom/scope-dependent; no specific dollar figure claimed", "source_url": "https://tlcscape.com", "verified": true }
+    { "claim": "Brian S. — Robert and Patrick repaired an A/C system on time, replaced a capacitor, installed overflow protection; job completed in one hour", "source_url": "https://mendservices.com/reviews/", "verified": true },
+    { "claim": "Nicky N. — hot water heater replaced/relocated next day (Mark & Tim), electrical by Brandyn; left everything spotless; 'Menders for life'", "source_url": "https://mendservices.com/reviews/", "verified": true },
+    { "claim": "Sarah S. — used Chris & team on several projects; professional, timely & highly skilled", "source_url": "https://mendservices.com/reviews/", "verified": true },
+    { "claim": "Lisa D. — generator, HVAC and electrical install/maintenance/repairs; Nick & Chase true experts with detailed plans", "source_url": "https://mendservices.com/reviews/", "verified": true },
+    { "claim": "Jay R. — thorough bid stuck to, timely schedule, frequent site visits, made a flooring-protection issue right", "source_url": "https://mendservices.com/reviews/", "verified": true }
   ]
 }

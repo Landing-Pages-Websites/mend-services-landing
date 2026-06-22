@@ -1,46 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  /* Forest green — primary action / dark sections */
-  --color-brand-50: #eef5ee;
-  --color-brand-100: #d6e7d8;
-  --color-brand-200: #aecdb2;
-  --color-brand-300: #7fae86;
-  --color-brand-400: #3f7a55;
-  --color-brand-500: #0e542c;
-  --color-brand-600: #0a4022;
-  --color-brand-700: #08361c;
-  --color-brand-800: #062b17;
-  --color-brand-900: #042011;
+  /* ── Brand primary — Mend lime #B3BE35 (action color / CTAs) ── */
+  --color-brand-50: #f7f8ee;
+  --color-brand-100: #ebefcf;
+  --color-brand-200: #dce3a8;
+  --color-brand-300: #cbd478;
+  --color-brand-400: #bdc74f;
+  --color-brand-500: #b3be35; /* primary */
+  --color-brand-600: #98a22d; /* hover */
+  --color-brand-700: #7d8525; /* active */
+  --color-brand-800: #5f6420;
+  --color-brand-900: #3e4117;
 
-  /* Deep forest — depth / dark bands */
-  --color-forest-700: #0a4022;
-  --color-forest-800: #08361c;
-  --color-forest-900: #062b17;
-  --color-forest-950: #04200f;
+  /* ── Ink / slate #282728 — text + dark sections ── */
+  --color-ink: #282728;
+  --color-ink-800: #222122;
+  --color-ink-900: #19181a; /* deepest band */
 
-  /* Leaf green accent — highlights, underlines, icon fills (used with restraint) */
-  --color-leaf-300: #a7da8a;
-  --color-leaf-400: #88cc65;
-  --color-leaf-500: #6cbc44;
-  --color-leaf-600: #56a032;
+  /* ── Teal accent #2F5062 — secondary actions, accents ── */
+  --color-teal-400: #3e6377;
+  --color-teal-500: #2f5062;
+  --color-teal-600: #264350;
+  --color-teal-700: #1e3641;
 
-  /* Neutrals (brand token roles) */
-  --color-surface: #f4f7f1;
-  --color-line: #e2e8dc;
-  --color-muted: #5b6b5e;
-  --color-ink: #1a2a1e;
+  /* ── Neutral role tokens ── */
+  --color-surface: #f4f6ee;
+  --color-line: #e1e5d6;
+  --color-muted: #5b5e55;
 
-  /* Semantic states */
+  /* ── Semantic states ── */
   --color-success: #12805c;
   --color-error: #d92d20;
 
-  --font-display: var(--font-fraunces), Georgia, serif;
-  --font-body: var(--font-inter), system-ui, sans-serif;
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-barlow), "Arial Narrow", sans-serif;
+  --font-body: var(--font-montserrat), system-ui, sans-serif;
+  --font-sans: var(--font-montserrat), system-ui, sans-serif;
 
-  --animate-fade-in: fadeIn 0.6s ease-out both;
-  --animate-fade-up: fadeUp 0.6s ease-out both;
+  --animate-fade-in: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-up: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -53,7 +51,7 @@
 }
 
 @utility container-max {
-  max-width: 72rem;
+  max-width: 75rem;
   margin-inline: auto;
   padding-inline: 1.25rem;
 }
@@ -67,17 +65,28 @@
     background: #ffffff;
     color: var(--color-ink);
     font-family: var(--font-body);
+    font-size: 1.0625rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Heading color lives in @layer base so Tailwind text-* utilities win on dark bands. */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--color-ink);
-    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  h1, h2 {
+    text-transform: uppercase;
+    font-weight: 800;
     letter-spacing: -0.01em;
   }
+
+  h1 { line-height: 1.02; }
+  h2 { line-height: 1.05; }
+  h3 { line-height: 1.15; font-weight: 700; }
 
   /* Anchor offset for the sticky header */
   section[id],

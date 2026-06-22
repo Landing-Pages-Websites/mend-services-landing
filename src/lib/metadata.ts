@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-export const siteUrl = "https://book.tlcscape.com";
-export const siteName = "TLC Landscape";
+export const siteUrl = "https://get.mendservices.com";
+export const siteName = "Mend Services";
 
 export type PageMetadataInput = {
   title: string;
@@ -18,8 +18,8 @@ export function buildPageMetadata({
   title,
   description,
   path,
-  image = "/images/hero-hardscape.jpg",
-  imageAlt = "Custom paver patio, water feature and lush landscaping in a Boise, Idaho backyard by TLC Landscape",
+  image = "/images/hero-hvac.jpg",
+  imageAlt = "Mend Services technician servicing a home air-conditioning unit outside an Austin-area home",
   socialTitle,
   socialDescription,
   type = "website",

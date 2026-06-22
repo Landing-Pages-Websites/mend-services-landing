@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
-import { Phone } from "lucide-react";
-import { PHONE_DISPLAY, PHONE_TEL } from "@/components/ui/cta";
+import Link from "next/link";
+import { Phone, Star } from "lucide-react";
+import { PHONE_DISPLAY, PHONE_TEL, FORM_ANCHOR } from "@/components/ui/cta";
 
 export default function Header(): React.JSX.Element {
   const [scrolled, setScrolled] = useState(false);
@@ -24,33 +24,42 @@ export default function Header(): React.JSX.Element {
           : "border-transparent bg-white"
       }`}
     >
-      <div className="container-max flex h-16 items-center justify-between lg:h-20">
-        <Link href="#hero" aria-label="TLC Landscape — home" className="shrink-0">
+      <div
+        className={`container-max flex items-center justify-between transition-all duration-300 ${
+          scrolled ? "h-16" : "h-16 lg:h-20"
+        }`}
+      >
+        <Link href="#hero" aria-label="Mend Services — home" className="shrink-0">
           <Image
-            src="/images/tlc-logo.png"
-            alt="TLC Landscape"
-            width={200}
-            height={64}
+            src="/images/mend-logo.png"
+            alt="Mend Services"
+            width={641}
+            height={146}
             priority
-            className="h-10 w-auto lg:h-12"
+            className={`w-auto transition-all duration-300 ${scrolled ? "h-8" : "h-9 lg:h-11"}`}
           />
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="hidden items-center gap-1.5 rounded-lg bg-surface px-3 py-1.5 text-xs font-semibold text-ink md:inline-flex">
+            <Star className="h-3.5 w-3.5 fill-brand-500 text-brand-500" />
+            4.9 Google rating
+          </span>
+          <Link
+            href={FORM_ANCHOR}
+            className="hidden items-center gap-2 rounded-lg border-2 border-teal-500/30 px-4 py-2 font-display text-sm font-bold uppercase tracking-wide text-teal-600 transition-colors hover:bg-teal-500 hover:border-teal-500 hover:text-white sm:inline-flex"
+          >
+            Schedule
+          </Link>
           <a
             href={PHONE_TEL}
-            className="hidden items-center gap-2 rounded-lg border-2 border-line px-3 py-1.5 font-display text-sm font-semibold text-ink transition-colors hover:border-brand-500 hover:text-brand-500 sm:inline-flex"
+            aria-label={`Call Mend Services at ${PHONE_DISPLAY}`}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3.5 py-2.5 font-display text-sm font-bold uppercase tracking-wide text-ink shadow-sm ring-1 ring-inset ring-brand-700/20 transition-all duration-200 hover:bg-brand-600 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
           >
-            <Phone className="h-4 w-4 text-brand-500" />
-            {PHONE_DISPLAY}
+            <Phone className="h-4 w-4" strokeWidth={2.5} />
+            <span className="hidden sm:inline">{PHONE_DISPLAY}</span>
+            <span className="sm:hidden">Call Now</span>
           </a>
-          <Link
-            href="#consultation"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 font-display text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-leaf-500/60"
-          >
-            <Phone className="h-4 w-4 sm:hidden" />
-            Free Consultation
-          </Link>
         </div>
       </div>
     </header>

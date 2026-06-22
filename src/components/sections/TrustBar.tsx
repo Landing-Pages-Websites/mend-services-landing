@@ -1,35 +1,46 @@
-import { CalendarClock, UserCheck, Hammer, ShieldCheck, MapPin } from "lucide-react";
+import Image from "next/image";
+import { ShieldCheck, BadgeCheck, Clock, Wrench, MapPin } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-interface Stat {
+interface Signal {
   icon: LucideIcon;
   value: string;
   label: string;
 }
 
-const STATS: Stat[] = [
-  { icon: CalendarClock, value: "25+", label: "Years in business" },
-  { icon: UserCheck, value: "Owner", label: "Owner-operated" },
-  { icon: Hammer, value: "1,000+", label: "Projects completed" },
-  { icon: ShieldCheck, value: "12-mo", label: "Workmanship warranty" },
-  { icon: MapPin, value: "Local", label: "Boise & Treasure Valley team" },
+const SIGNALS: Signal[] = [
+  { icon: ShieldCheck, value: "1-Year", label: "Parts & labor warranty" },
+  { icon: BadgeCheck, value: "Licensed", label: "Master professionals" },
+  { icon: Clock, value: "24/7", label: "Emergency service" },
+  { icon: Wrench, value: "Same-Day", label: "Scheduling available" },
+  { icon: MapPin, value: "Local", label: "Greater Austin team" },
 ];
 
 export default function TrustBar(): React.JSX.Element {
   return (
-    <section id="trust-bar" className="bg-forest-900 py-6 text-white">
-      <div className="container-max">
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-5">
-          {STATS.map((stat) => (
-            <li key={stat.label} className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
-                <stat.icon className="h-5 w-5 text-leaf-400" strokeWidth={2} />
+    <section id="trust-bar" className="border-b border-line bg-surface py-5">
+      <div className="container-max flex flex-col items-center gap-5 lg:flex-row lg:justify-between">
+        <div className="flex shrink-0 items-center gap-3">
+          <Image
+            src="/images/google-4-9-rating.png"
+            alt="Rated 4.9 stars by Google customers"
+            width={262}
+            height={165}
+            className="h-14 w-auto"
+          />
+          <span className="hidden h-12 w-px bg-line sm:block" />
+        </div>
+        <ul className="grid w-full grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-1 lg:justify-between lg:gap-4">
+          {SIGNALS.map((signal) => (
+            <li key={signal.label} className="flex items-center gap-2.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-teal-500 ring-1 ring-line">
+                <signal.icon className="h-5 w-5" strokeWidth={2.25} />
               </span>
               <span className="leading-tight">
-                <span className="block font-display text-lg font-semibold text-white">
-                  {stat.value}
+                <span className="block font-display text-base font-bold uppercase tracking-wide text-ink">
+                  {signal.value}
                 </span>
-                <span className="block text-xs text-white/70">{stat.label}</span>
+                <span className="block text-xs text-muted">{signal.label}</span>
               </span>
             </li>
           ))}

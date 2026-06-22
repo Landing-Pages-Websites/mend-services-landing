@@ -1,37 +1,52 @@
 import Hero from "@/components/sections/Hero";
 import TrustBar from "@/components/sections/TrustBar";
-import Services from "@/components/sections/Services";
-import WhyTLC from "@/components/sections/WhyTLC";
-import Process from "@/components/sections/Process";
-import Gallery from "@/components/sections/Gallery";
-import Testimonials from "@/components/sections/Testimonials";
+import HvacServices from "@/components/sections/HvacServices";
+import PlumbingServices from "@/components/sections/PlumbingServices";
+import ElectricalServices from "@/components/sections/ElectricalServices";
+import WhyMend from "@/components/sections/WhyMend";
+import WarrantyGuarantee from "@/components/sections/WarrantyGuarantee";
 import ServiceArea from "@/components/sections/ServiceArea";
-import Faq from "@/components/sections/Faq";
-import Consultation from "@/components/sections/Consultation";
+import Testimonials from "@/components/sections/Testimonials";
+import LeadFormSection from "@/components/sections/LeadFormSection";
+import FinalCta from "@/components/sections/FinalCta";
+
+const AREAS_SERVED = [
+  "Austin",
+  "Round Rock",
+  "Cedar Park",
+  "Leander",
+  "Pflugerville",
+  "Georgetown",
+  "Kyle",
+  "Buda",
+  "Lakeway",
+  "Bee Cave",
+  "Dripping Springs",
+  "Hutto",
+  "Manor",
+  "San Marcos",
+];
 
 const localBusinessSchema = {
   "@context": "https://schema.org",
-  "@type": "LandscapingBusiness",
-  name: "TLC Landscape",
-  url: "https://book.tlcscape.com",
-  telephone: "+1-208-859-9955",
-  image: "https://book.tlcscape.com/images/hero-hardscape.jpg",
+  "@type": "HVACBusiness",
+  name: "Mend Services",
+  url: "https://get.mendservices.com",
+  telephone: "+1-737-249-6457",
+  image: "https://get.mendservices.com/images/hero-hvac.jpg",
   priceRange: "$$$",
-  foundingDate: "2000",
   description:
-    "Owner-operated landscape design and hardscaping company serving Boise and the Treasure Valley for 25+ years. Custom paver patios, retaining walls, water features, fire pits, flagstone and full landscape design and installation. 1,000+ projects completed with a 12-month workmanship warranty.",
-  areaServed: [
-    { "@type": "City", name: "Boise, ID" },
-    { "@type": "City", name: "Eagle, ID" },
-    { "@type": "City", name: "Meridian, ID" },
-    { "@type": "City", name: "Garden City, ID" },
-    { "@type": "City", name: "Hidden Springs, ID" },
-    { "@type": "City", name: "Star, ID" },
-  ],
+    "Mend Services is Greater Austin's premium whole-home services provider — HVAC, plumbing and electrical under one roof. Same-day scheduling, 24/7 emergency service, licensed master professionals, a one-year parts and labor warranty and a 4.9-star Google rating.",
+  areaServed: AREAS_SERVED.map((name) => ({ "@type": "City", name: `${name}, TX` })),
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.9",
+    bestRating: "5",
+  },
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Boise",
-    addressRegion: "ID",
+    addressLocality: "Austin",
+    addressRegion: "TX",
     addressCountry: "US",
   },
 };
@@ -45,14 +60,15 @@ export default function Home(): React.JSX.Element {
       />
       <Hero />
       <TrustBar />
-      <Services />
-      <WhyTLC />
-      <Process />
-      <Gallery />
-      <Testimonials />
+      <HvacServices />
+      <PlumbingServices />
+      <ElectricalServices />
+      <WhyMend />
+      <WarrantyGuarantee />
       <ServiceArea />
-      <Faq />
-      <Consultation />
+      <Testimonials />
+      <LeadFormSection />
+      <FinalCta />
     </>
   );
 }
