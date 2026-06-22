@@ -1,33 +1,38 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Loader2, ShieldCheck } from "lucide-react";
+import { Loader2, ShieldCheck, Phone } from "lucide-react";
 import { useMegaLeadForm } from "@/hooks/useMegaLeadForm";
+import { PHONE_DISPLAY, PHONE_TEL } from "@/components/ui/cta";
 
-const BUDGET_OPTIONS = ["Under $5,000", "$5,000–$25,000", "$25,000+"] as const;
-const TIMELINE_OPTIONS = [
-  "As soon as possible",
-  "Within 1–3 months",
-  "Just researching",
-] as const;
-
-const DISQUALIFYING_BUDGET = "Under $5,000";
-const DISQUALIFYING_TIMELINE = "Just researching";
-const FORM_ID = "tlc-lead-form";
-
+const FORM_ID = "mend-lead-form";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ZIP_RE = /^\d{5}$/;
+
+const DECISION_OPTIONS = ["Yes", "No"] as const;
+const TIMING_OPTIONS = ["Immediate service", "Just exploring"] as const;
+const QUALIFYING_DECISION = "Yes";
+const QUALIFYING_TIMING = "Immediate service";
+
+// Attribution params persisted from the URL into hidden form fields.
+const TRACKED_PARAMS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "gclid",
+  "gbraid",
+  "wbraid",
+] as const;
 
 interface FormState {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  zip: string;
-  projectDescription: string;
-  budget: string;
-  timeline: string;
+  decisionMaker: string;
+  serviceTiming: string;
 }
 
 const EMPTY: FormState = {
@@ -35,19 +40,18 @@ const EMPTY: FormState = {
   lastName: "",
   email: "",
   phone: "",
-  zip: "",
-  projectDescription: "",
-  budget: "",
-  timeline: "",
+  decisionMaker: "",
+  serviceTiming: "",
 };
 
 type Errors = Partial<Record<keyof FormState, string>>;
 type Status = "idle" | "submitting" | "redirecting" | "error";
 
+// Both qualified and disqualified answers still submit — every fill is a lead.
 function isQualified(data: FormState): boolean {
   return (
-    data.budget !== DISQUALIFYING_BUDGET &&
-    data.timeline !== DISQUALIFYING_TIMELINE
+    data.decisionMaker === QUALIFYING_DECISION &&
+    data.serviceTiming === QUALIFYING_TIMING
   );
 }
 
@@ -65,10 +69,9 @@ function validate(data: FormState): Errors {
   if (!data.email.trim()) errors.email = "Enter your email";
   else if (!EMAIL_RE.test(data.email)) errors.email = "Enter a valid email";
   if (data.phone.replace(/\D/g, "").length < 10)
-    errors.phone = "Enter a valid phone number";
-  if (!ZIP_RE.test(data.zip)) errors.zip = "Enter a 5-digit ZIP";
-  if (!data.budget) errors.budget = "Select a budget range";
-  if (!data.timeline) errors.timeline = "Select a timeline";
+    errors.phone = "Enter a valid 10-digit phone number";
+  if (!data.decisionMaker) errors.decisionMaker = "Please choose one";
+  if (!data.serviceTiming) errors.serviceTiming = "Please choose one";
   return errors;
 }
 
@@ -82,9 +85,10 @@ function pushDataLayer(event: string, qualified: boolean): void {
   });
 }
 
-function trackSubmission(qualified: boolean): void {
-  // Fire the MegaTag conversion before any dataLayer push.
+function trackSubmission(qualified: boolean, fields: FormState): void {
+  // Fire the MegaTag conversion BEFORE any dataLayer push.
   window.MegaTag?.trackEvent?.("form_submit", {
+    ...fields,
     lead_quality: qualified ? "qualified" : "disqualified",
   });
   pushDataLayer("form_submit", qualified);
@@ -102,9 +106,24 @@ export default function LeadForm({
   const formRef = useRef<HTMLFormElement>(null);
   const inFlightRef = useRef(false);
   const [data, setData] = useState<FormState>(EMPTY);
+  const [tracking, setTracking] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("idle");
   const fid = (name: string): string => `${idPrefix}-${name}`;
+
+  // Persist utm/gclid params from the URL into hidden fields on mount.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const captured: Record<string, string> = {};
+    for (const key of TRACKED_PARAMS) {
+      const value = params.get(key);
+      if (value) captured[key] = value;
+    }
+    // Populated after mount on purpose: reading window.location during render
+    // would hydration-mismatch (the server has no query string).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTracking(captured);
+  }, []);
 
   const update = (field: keyof FormState, value: string): void => {
     const next = field === "phone" ? formatPhone(value) : value;
@@ -114,11 +133,11 @@ export default function LeadForm({
 
   // Validate first, then hand off to the form's submit handler.
   const onSubmitClick = (): void => {
-    if (inFlightRef.current) return;
-    if (status === "submitting") return;
+    if (inFlightRef.current || status === "submitting") return;
     const found = validate(data);
     if (Object.keys(found).length > 0) {
       setErrors(found);
+      formRef.current?.reportValidity();
       return;
     }
     formRef.current?.requestSubmit();
@@ -126,10 +145,8 @@ export default function LeadForm({
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    if (inFlightRef.current) return;
-    if (status === "submitting") return;
-    // Synchronous in-flight lock: block any subsequent requestSubmit() in this
-    // same tick (rapid clicks) before the first await yields.
+    if (inFlightRef.current || status === "submitting") return;
+    // Synchronous in-flight lock blocks rapid duplicate submits before the await yields.
     inFlightRef.current = true;
     setStatus("submitting");
 
@@ -141,17 +158,15 @@ export default function LeadForm({
         lastName: data.lastName.trim(),
         email: data.email.trim(),
         phone: data.phone.trim(),
-        zip: data.zip.trim(),
-        projectDescription: data.projectDescription.trim(),
-        budget: data.budget,
-        timeline: data.timeline,
+        decisionMaker: data.decisionMaker,
+        serviceTiming: data.serviceTiming,
+        leadQuality: qualified ? "qualified" : "disqualified",
+        ...tracking,
       });
 
-      trackSubmission(qualified);
+      trackSubmission(qualified, data);
       router.push("/thank-you");
     } catch {
-      // Release the lock so a failed submit can be retried. On success we
-      // navigate to /thank-you and intentionally never release it.
       inFlightRef.current = false;
       setStatus("error");
     }
@@ -161,218 +176,139 @@ export default function LeadForm({
   const busy = submitting || status === "redirecting";
 
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-2xl shadow-forest-950/20 ring-1 ring-line sm:p-8">
-      <h2 className="font-display text-2xl font-semibold text-ink">
-        Schedule Your Free On-Site Consultation
+    <div className="rounded-2xl bg-white p-6 shadow-2xl shadow-ink/20 ring-1 ring-line sm:p-7">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-teal-600">
+        <span className="inline-block h-2 w-2 rounded-full bg-brand-500" />
+        Same-day &amp; 24/7 emergency service
+      </div>
+      <h2 className="mt-3 font-display text-2xl font-extrabold uppercase leading-tight text-ink">
+        Request Service
       </h2>
       <p className="mt-1.5 text-sm text-muted">
-        No pressure, no obligation — we&apos;ll confirm your details and set up a visit.
+        Tell us what&apos;s going on and we&apos;ll call you right back — or call{" "}
+        <a href={PHONE_TEL} className="font-semibold text-teal-600 underline-offset-2 hover:underline">
+          {PHONE_DISPLAY}
+        </a>{" "}
+        now.
       </p>
 
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        noValidate
-        className="mt-6 space-y-4"
-      >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field
-            label="First name"
-            htmlFor={fid("firstName")}
-            error={errors.firstName}
-            input={
-              <input
-                id={fid("firstName")}
-                name="firstName"
-                type="text"
-                required
-                autoComplete="given-name"
-                value={data.firstName}
-                onChange={(e) => update("firstName", e.target.value)}
-                className={inputClass(errors.firstName)}
-                placeholder="Jane"
-              />
-            }
-          />
-          <Field
-            label="Last name"
-            htmlFor={fid("lastName")}
-            error={errors.lastName}
-            input={
-              <input
-                id={fid("lastName")}
-                name="lastName"
-                type="text"
-                required
-                autoComplete="family-name"
-                value={data.lastName}
-                onChange={(e) => update("lastName", e.target.value)}
-                className={inputClass(errors.lastName)}
-                placeholder="Doe"
-              />
-            }
-          />
-        </div>
+      <form ref={formRef} onSubmit={handleSubmit} noValidate className="mt-5 space-y-4">
+        {Object.entries(tracking).map(([key, value]) => (
+          <input key={key} type="hidden" name={key} value={value} readOnly />
+        ))}
 
-        <Field
-          label="Email"
-          htmlFor={fid("email")}
-          error={errors.email}
-          input={
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="First name" htmlFor={fid("firstName")} error={errors.firstName}>
             <input
-              id={fid("email")}
-              name="email"
-              type="email"
+              id={fid("firstName")}
+              name="firstName"
+              type="text"
               required
-              autoComplete="email"
-              value={data.email}
-              onChange={(e) => update("email", e.target.value)}
-              className={inputClass(errors.email)}
-              placeholder="jane@email.com"
+              autoComplete="given-name"
+              value={data.firstName}
+              onChange={(e) => update("firstName", e.target.value)}
+              className={inputClass(errors.firstName)}
+              placeholder="Jane"
             />
-          }
-        />
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field
-            label="Phone"
-            htmlFor={fid("phone")}
-            error={errors.phone}
-            input={
-              <input
-                id={fid("phone")}
-                name="phone"
-                type="tel"
-                required
-                inputMode="numeric"
-                autoComplete="tel"
-                value={data.phone}
-                onChange={(e) => update("phone", e.target.value)}
-                className={inputClass(errors.phone)}
-                placeholder="(208) 555-0199"
-              />
-            }
-          />
-          <Field
-            label="ZIP code"
-            htmlFor={fid("zip")}
-            error={errors.zip}
-            input={
-              <input
-                id={fid("zip")}
-                name="zip"
-                type="text"
-                required
-                inputMode="numeric"
-                autoComplete="postal-code"
-                maxLength={5}
-                value={data.zip}
-                onChange={(e) =>
-                  update("zip", e.target.value.replace(/\D/g, "").slice(0, 5))
-                }
-                className={inputClass(errors.zip)}
-                placeholder="83702"
-              />
-            }
-          />
+          </Field>
+          <Field label="Last name" htmlFor={fid("lastName")} error={errors.lastName}>
+            <input
+              id={fid("lastName")}
+              name="lastName"
+              type="text"
+              required
+              autoComplete="family-name"
+              value={data.lastName}
+              onChange={(e) => update("lastName", e.target.value)}
+              className={inputClass(errors.lastName)}
+              placeholder="Doe"
+            />
+          </Field>
         </div>
 
-        <Field
-          label="Tell us about your project (optional)"
-          htmlFor={fid("projectDescription")}
-          input={
-            <textarea
-              id={fid("projectDescription")}
-              name="projectDescription"
-              rows={3}
-              value={data.projectDescription}
-              onChange={(e) => update("projectDescription", e.target.value)}
-              className={`${inputClass()} resize-y`}
-              placeholder="Paver patio, retaining wall, water feature, full backyard redesign…"
-            />
-          }
+        <Field label="Email" htmlFor={fid("email")} error={errors.email}>
+          <input
+            id={fid("email")}
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+            value={data.email}
+            onChange={(e) => update("email", e.target.value)}
+            className={inputClass(errors.email)}
+            placeholder="jane@email.com"
+          />
+        </Field>
+
+        <Field label="Phone" htmlFor={fid("phone")} error={errors.phone}>
+          <input
+            id={fid("phone")}
+            name="phone"
+            type="tel"
+            required
+            inputMode="numeric"
+            pattern="\(\d{3}\) \d{3}-\d{4}"
+            autoComplete="tel"
+            value={data.phone}
+            onChange={(e) => update("phone", e.target.value)}
+            className={inputClass(errors.phone)}
+            placeholder="(737) 555-0199"
+          />
+        </Field>
+
+        <RadioGroup
+          legend="Are you the homeowner or authorized decision-maker?"
+          name="decisionMaker"
+          options={DECISION_OPTIONS}
+          value={data.decisionMaker}
+          error={errors.decisionMaker}
+          onChange={(v) => update("decisionMaker", v)}
+          idFor={fid}
         />
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field
-            label="Estimated budget"
-            htmlFor={fid("budget")}
-            error={errors.budget}
-            input={
-              <div className="relative">
-                <select
-                  id={fid("budget")}
-                  name="budget"
-                  required
-                  value={data.budget}
-                  onChange={(e) => update("budget", e.target.value)}
-                  className={selectClass(errors.budget, data.budget)}
-                >
-                  <option value="" disabled>
-                    Select…
-                  </option>
-                  {BUDGET_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </div>
-            }
-          />
-          <Field
-            label="Project timeline"
-            htmlFor={fid("timeline")}
-            error={errors.timeline}
-            input={
-              <div className="relative">
-                <select
-                  id={fid("timeline")}
-                  name="timeline"
-                  required
-                  value={data.timeline}
-                  onChange={(e) => update("timeline", e.target.value)}
-                  className={selectClass(errors.timeline, data.timeline)}
-                >
-                  <option value="" disabled>
-                    Select…
-                  </option>
-                  {TIMELINE_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted">
-                  <ChevronDown className="h-4 w-4" />
-                </div>
-              </div>
-            }
-          />
-        </div>
+        <RadioGroup
+          legend="Do you need service now, or just exploring?"
+          name="serviceTiming"
+          options={TIMING_OPTIONS}
+          value={data.serviceTiming}
+          error={errors.serviceTiming}
+          onChange={(v) => update("serviceTiming", v)}
+          idFor={fid}
+        />
 
         <button
           type="button"
           onClick={onSubmitClick}
           disabled={busy}
-          className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-4 font-display text-base font-semibold text-white shadow-lg shadow-brand-900/25 ring-1 ring-inset ring-transparent transition-all duration-200 hover:bg-brand-600 hover:ring-leaf-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-leaf-500/60 disabled:cursor-not-allowed disabled:opacity-70"
+          className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-4 font-display text-base font-bold uppercase tracking-wide text-ink shadow-lg shadow-ink/15 ring-1 ring-inset ring-brand-700/20 transition-all duration-200 hover:bg-brand-600 active:scale-[0.99] active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {busy && <Loader2 className="h-5 w-5 animate-spin" />}
-          {submitting ? "Sending…" : "Schedule My Free Consultation"}
+          {submitting ? "Sending…" : "Request My Service"}
         </button>
+
+        <a
+          href={PHONE_TEL}
+          aria-label={`Call Mend Services at ${PHONE_DISPLAY}`}
+          className="flex items-center justify-center gap-2 rounded-xl border-2 border-teal-500/25 px-6 py-3 font-display text-sm font-bold uppercase tracking-wide text-teal-600 transition-colors hover:bg-teal-500 hover:border-teal-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        >
+          <Phone className="h-4 w-4" strokeWidth={2.5} />
+          Or call {PHONE_DISPLAY}
+        </a>
 
         {status === "error" && (
           <p className="text-center text-sm text-error" role="alert">
-            Something went wrong. Please try again or call (208) 859-9955.
+            Something went wrong. Please try again or call{" "}
+            <a href={PHONE_TEL} className="font-semibold underline">
+              {PHONE_DISPLAY}
+            </a>
+            .
           </p>
         )}
 
         <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted">
           <ShieldCheck className="h-3.5 w-3.5 text-success" />
-          Your information stays private. We never sell or spam.
+          Your info stays private. No spam — we never sell your details.
         </p>
       </form>
     </div>
@@ -383,35 +319,79 @@ function Field({
   label,
   htmlFor,
   error,
-  input,
+  children,
 }: {
   label: string;
   htmlFor: string;
   error?: string;
-  input: React.ReactNode;
+  children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <div className="block">
-      <label
-        htmlFor={htmlFor}
-        className="mb-1.5 block text-sm font-medium text-ink"
-      >
+      <label htmlFor={htmlFor} className="mb-1.5 block text-sm font-semibold text-ink">
         {label}
       </label>
-      {input}
+      {children}
       {error && <span className="mt-1 block text-xs text-error">{error}</span>}
     </div>
   );
 }
 
-function inputClass(error?: string): string {
-  return `w-full rounded-xl border bg-white px-4 py-3 text-[15px] text-ink placeholder:text-muted/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
-    error ? "border-error" : "border-line"
-  }`;
+function RadioGroup({
+  legend,
+  name,
+  options,
+  value,
+  error,
+  onChange,
+  idFor,
+}: {
+  legend: string;
+  name: string;
+  options: readonly string[];
+  value: string;
+  error?: string;
+  onChange: (value: string) => void;
+  idFor: (name: string) => string;
+}): React.JSX.Element {
+  return (
+    <fieldset>
+      <legend className="mb-1.5 block text-sm font-semibold text-ink">{legend}</legend>
+      <div className="grid grid-cols-2 gap-2.5">
+        {options.map((opt) => {
+          const id = idFor(`${name}-${opt.replace(/\s+/g, "-").toLowerCase()}`);
+          const selected = value === opt;
+          return (
+            <label
+              key={opt}
+              htmlFor={id}
+              className={`flex cursor-pointer items-center justify-center rounded-xl border-2 px-3 py-3 text-center text-sm font-semibold transition-colors focus-within:ring-2 focus-within:ring-teal-500 ${
+                selected
+                  ? "border-brand-500 bg-brand-50 text-ink"
+                  : "border-line bg-white text-muted hover:border-brand-300"
+              }`}
+            >
+              <input
+                id={id}
+                type="radio"
+                name={name}
+                value={opt}
+                checked={selected}
+                onChange={() => onChange(opt)}
+                className="sr-only"
+              />
+              {opt}
+            </label>
+          );
+        })}
+      </div>
+      {error && <span className="mt-1 block text-xs text-error">{error}</span>}
+    </fieldset>
+  );
 }
 
-function selectClass(error: string | undefined, value: string): string {
-  return `w-full appearance-none rounded-xl border bg-white px-4 py-3 pr-10 text-[15px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
-    value ? "text-ink" : "text-muted/60"
-  } ${error ? "border-error" : "border-line"}`;
+function inputClass(error?: string): string {
+  return `w-full rounded-xl border-2 bg-white px-4 py-3 text-[15px] text-ink placeholder:text-muted/60 transition-colors focus-visible:outline-none focus-visible:border-brand-500 focus-visible:ring-2 focus-visible:ring-brand-500/40 ${
+    error ? "border-error" : "border-line"
+  }`;
 }
