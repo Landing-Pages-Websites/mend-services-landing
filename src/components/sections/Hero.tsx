@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ShieldCheck, Clock, BadgeCheck, MapPin } from "lucide-react";
 import LeadForm from "@/components/LeadForm";
+import GoogleRating from "@/components/ui/GoogleRating";
 import { CallCta, ScheduleCta } from "@/components/ui/cta";
 
 const TRUST_CHIPS = [
@@ -15,15 +16,15 @@ export default function Hero(): React.JSX.Element {
     <section id="hero" className="relative overflow-hidden bg-ink-900">
       <div className="absolute inset-0">
         <Image
-          src="/images/hero-hvac.jpg"
-          alt="Mend Services technician servicing a home air-conditioning unit outside an Austin-area home"
+          src="/images/hero-hvac-v2.jpg"
+          alt="Mend Services technician servicing a home air-conditioning condenser under a bright blue sky"
           fill
           priority
           sizes="100vw"
           className="object-cover object-center lg:object-[35%_center]"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink-900 via-ink-900/95 to-ink-900/50" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-900 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink-900/85 via-ink-900/55 to-ink-900/15" />
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-ink-900/70 to-transparent" />
       </div>
 
       <div className="relative container-max grid items-center gap-10 py-14 lg:grid-cols-12 lg:gap-10 lg:py-20">
@@ -49,14 +50,9 @@ export default function Hero(): React.JSX.Element {
             <ScheduleCta variant="dark" />
           </div>
 
-          <div className="mt-7 flex items-center gap-4">
-            <Image
-              src="/images/google-4-9-rating.png"
-              alt="Rated 4.9 stars by Google customers"
-              width={262}
-              height={165}
-              className="h-16 w-auto rounded-lg bg-white/95 px-3 py-2"
-            />
+          <div className="mt-7 flex items-center gap-5">
+            <GoogleRating variant="dark" />
+            <span className="hidden h-10 w-px bg-white/15 sm:block" />
             <p className="max-w-[14rem] text-sm leading-snug text-white/75">
               Trusted by Greater Austin homeowners across hundreds of Google reviews.
             </p>

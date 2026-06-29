@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Star } from "lucide-react";
+import GoogleRating from "@/components/ui/GoogleRating";
 
 interface Review {
   name: string;
@@ -74,13 +74,7 @@ export default function Testimonials(): React.JSX.Element {
               electrical.
             </p>
           </div>
-          <Image
-            src="/images/google-4-9-rating.png"
-            alt="Rated 4.9 stars by Google customers"
-            width={262}
-            height={165}
-            className="h-20 w-auto shrink-0"
-          />
+          <GoogleRating variant="light" className="shrink-0" />
         </header>
 
         <div className="mt-12 columns-1 gap-6 md:columns-2 lg:columns-3 [&>*]:mb-6">

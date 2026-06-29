@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Check, PhoneCall, Clock, Users } from "lucide-react";
+import GoogleRating from "@/components/ui/GoogleRating";
 import { DualCta } from "@/components/ui/cta";
 
 const REASONS = [
@@ -47,32 +48,40 @@ export default function WhyMend(): React.JSX.Element {
           <DualCta className="mt-10" scheduleVariant="dark" />
         </div>
 
-        <div className="rounded-3xl bg-white/5 p-8 ring-1 ring-white/10 sm:p-10">
-          <div className="flex items-center gap-4">
+        <div className="overflow-hidden rounded-3xl bg-white/5 ring-1 ring-white/10">
+          <figure className="relative aspect-[16/10]">
             <Image
-              src="/images/google-4-9-rating.png"
-              alt="Rated 4.9 stars by Google customers"
-              width={262}
-              height={165}
-              className="h-20 w-auto rounded-lg bg-white px-3 py-2"
+              src="/images/comfort-home.jpg"
+              alt="A family relaxing comfortably in a bright, climate-controlled Greater Austin living room"
+              fill
+              sizes="(min-width: 1024px) 36rem, 100vw"
+              className="object-cover"
             />
-            <p className="text-sm leading-snug text-white/80">
-              A 4.9-star Google rating earned across hundreds of Greater Austin homes.
-            </p>
-          </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-900/55 to-transparent" />
+          </figure>
 
-          <div className="mt-8 space-y-5 border-t border-white/10 pt-8">
-            {PILLARS.map((pillar) => (
-              <div key={pillar.title} className="flex items-start gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-400 ring-1 ring-brand-500/25">
-                  <pillar.icon className="h-5 w-5" strokeWidth={2.25} />
-                </span>
-                <div>
-                  <h3 className="font-display text-lg font-bold text-white">{pillar.title}</h3>
-                  <p className="mt-0.5 text-sm text-white/70">{pillar.body}</p>
+          <div className="p-8 sm:p-10">
+            <div className="flex items-center gap-4">
+              <GoogleRating variant="dark" />
+              <span className="hidden h-10 w-px bg-white/15 sm:block" />
+              <p className="text-sm leading-snug text-white/80">
+                A 4.9-star Google rating earned across hundreds of Greater Austin homes.
+              </p>
+            </div>
+
+            <div className="mt-8 space-y-5 border-t border-white/10 pt-8">
+              {PILLARS.map((pillar) => (
+                <div key={pillar.title} className="flex items-start gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-400 ring-1 ring-brand-500/25">
+                    <pillar.icon className="h-5 w-5" strokeWidth={2.25} />
+                  </span>
+                  <div>
+                    <h3 className="font-display text-lg font-bold text-white">{pillar.title}</h3>
+                    <p className="mt-0.5 text-sm text-white/70">{pillar.body}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

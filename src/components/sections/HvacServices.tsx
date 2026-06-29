@@ -73,8 +73,8 @@ export default function HvacServices(): React.JSX.Element {
             <figure className="relative overflow-hidden rounded-3xl shadow-2xl shadow-ink/15 ring-1 ring-line">
               <div className="relative aspect-[4/3]">
                 <Image
-                  src="/images/hero-hvac.jpg"
-                  alt="Mend HVAC technician inspecting a residential air-conditioning condenser unit"
+                  src="/images/hvac-tech.jpg"
+                  alt="Mend HVAC technician checking refrigerant gauges while servicing an air-conditioning system"
                   fill
                   sizes="(min-width: 1024px) 36rem, 100vw"
                   className="object-cover"

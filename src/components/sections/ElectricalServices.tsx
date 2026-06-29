@@ -72,8 +72,8 @@ export default function ElectricalServices(): React.JSX.Element {
             <figure className="relative overflow-hidden rounded-3xl shadow-2xl shadow-ink/15 ring-1 ring-line">
               <div className="relative aspect-[4/3]">
                 <Image
-                  src="/images/electrical.jpg"
-                  alt="Mend electrician working inside an exterior electrical panel on an Austin-area home"
+                  src="/images/electrician-ev.jpg"
+                  alt="Mend electrician installing a Level 2 EV charger in a bright Austin-area garage"
                   fill
                   sizes="(min-width: 1024px) 36rem, 100vw"
                   className="object-cover"
