@@ -27,8 +27,10 @@ export default function Hero(): React.JSX.Element {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-ink-900/70 to-transparent" />
       </div>
 
-      <div className="relative container-max grid items-center gap-10 py-14 lg:grid-cols-12 lg:gap-10 lg:py-20">
-        <div className="animate-fade-up lg:col-span-7">
+      <div className="relative container-max grid items-center gap-8 py-12 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-0 lg:py-20">
+        {/* Top copy — badge + headline. Own grid item so the form can slot
+            directly beneath it on mobile while staying in the left column on lg. */}
+        <div className="animate-fade-up lg:col-span-7 lg:col-start-1 lg:row-start-1">
           <span className="inline-flex items-center gap-2 rounded-full bg-brand-500/15 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-brand-300 ring-1 ring-brand-500/30">
             Greater Austin · HVAC · Plumbing · Electrical
           </span>
@@ -37,7 +39,17 @@ export default function Hero(): React.JSX.Element {
             Austin Heat Won&apos;t Wait.{" "}
             <span className="text-brand-400">Neither Do We.</span>
           </h1>
+        </div>
 
+        {/* Form — appears right after the headline on mobile (above the fold);
+            restored to the right-hand column on lg via explicit grid placement. */}
+        <div className="relative animate-fade-in lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2">
+          <LeadForm idPrefix="hero" />
+        </div>
+
+        {/* Supporting copy — paragraph, CTAs, rating, trust chips. Sits below the
+            form on mobile; stacks under the headline in the left column on lg. */}
+        <div className="animate-fade-up lg:col-span-7 lg:col-start-1 lg:row-start-2">
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/85">
             When your AC quits in the Texas heat, you need a licensed master tech today —
             not next week. Mend delivers same-day air conditioning repair, plus
@@ -68,10 +80,6 @@ export default function Hero(): React.JSX.Element {
               </li>
             ))}
           </ul>
-        </div>
-
-        <div className="relative animate-fade-in lg:col-span-5">
-          <LeadForm idPrefix="hero" />
         </div>
       </div>
     </section>
