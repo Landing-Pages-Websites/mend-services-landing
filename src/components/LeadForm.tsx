@@ -132,15 +132,17 @@ export default function LeadForm({
   };
 
   // Validate first, then hand off to the form's submit handler.
-  const onSubmitClick = (): void => {
-    if (inFlightRef.current || status === "submitting") return;
-    const found = validate(data);
-    if (Object.keys(found).length > 0) {
-      setErrors(found);
-      formRef.current?.reportValidity();
+  const onSubmitClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    if (inFlightRef.current || status === "submitting") {
+      e.preventDefault();
       return;
     }
-    formRef.current?.requestSubmit();
+    const found = validate(data);
+    if (Object.keys(found).length > 0) {
+      e.preventDefault();
+      setErrors(found);
+      formRef.current?.reportValidity();
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
@@ -278,13 +280,13 @@ export default function LeadForm({
         />
 
         <button
-          type="button"
+          type="submit"
           onClick={onSubmitClick}
           disabled={busy}
           className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-4 font-display text-base font-bold uppercase tracking-wide text-ink shadow-lg shadow-ink/15 ring-1 ring-inset ring-brand-700/20 transition-all duration-200 hover:bg-brand-600 active:scale-[0.99] active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {busy && <Loader2 className="h-5 w-5 animate-spin" />}
-          {submitting ? "Sending…" : "Request My Service"}
+          {submitting ? "Sending…" : "REQUEST MY SERVICE"}
         </button>
 
         <a
