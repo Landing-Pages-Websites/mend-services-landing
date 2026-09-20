@@ -187,7 +187,7 @@ export default function LeadForm({
         Request Service
       </h2>
       <p className="mt-1.5 text-sm text-muted">
-        Tell us what&apos;s going on and we&apos;ll call you right back — or call{" "}
+        AC repair, heating, and cooling help in Austin, TX. Tell us what&apos;s going on and we&apos;ll call you right back — or call{" "}
         <a href={PHONE_TEL} className="font-semibold text-teal-600 underline-offset-2 hover:underline">
           {PHONE_DISPLAY}
         </a>{" "}
