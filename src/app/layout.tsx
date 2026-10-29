@@ -29,7 +29,7 @@ export const metadata: Metadata = buildPageMetadata({
   title:
     "AC Repair, Plumbing & Electrical in Greater Austin | Mend Services",
   description:
-    "Same-day AC repair, plumbing and electrical service across Greater Austin. Licensed master pros, 24/7 emergency service, a one-year parts & labor warranty and a 4.9-star Google rating. Call (737) 249-6457.",
+    "Same-day AC repair, plumbing and electrical service across Greater Austin. Licensed master pros, 24/7 emergency service, a one-year parts & labor warranty and a 4.9-star Google rating. Call (737) 238-5558.",
   path: "/",
   image: "/images/hero-hvac.jpg",
   imageAlt:
