@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, Phone, ArrowRight } from "lucide-react";
 
-const PHONE_DISPLAY = "(737) 249-6457";
-const PHONE_TEL = "tel:+17372496457";
+const PHONE_DISPLAY = "(737) 238-5558";
+const PHONE_TEL = "tel:+17372385558";
 
 export const metadata: Metadata = {
   title: "Thank You | Mend Services",

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Phone, CalendarCheck } from "lucide-react";
 
 // CTM-tracked Google Ads campaign number — call attribution is swapped in by the CTM script.
-export const PHONE_DISPLAY = "(737) 249-6457";
-export const PHONE_TEL = "tel:+17372496457";
+export const PHONE_DISPLAY = "(737) 238-5558";
+export const PHONE_TEL = "tel:+17372385558";
 export const FORM_ANCHOR = "#request-service";
 
 /**

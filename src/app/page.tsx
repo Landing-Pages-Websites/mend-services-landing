@@ -32,7 +32,7 @@ const localBusinessSchema = {
   "@type": "HVACBusiness",
   name: "Mend Services",
   url: "https://get.mendservices.com",
-  telephone: "+1-737-249-6457",
+  telephone: "+1-737-238-5558",
   image: "https://get.mendservices.com/images/hero-hvac.jpg",
   priceRange: "$$$",
   description:
