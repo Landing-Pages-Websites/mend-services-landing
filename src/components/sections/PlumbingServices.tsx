@@ -40,12 +40,13 @@ export default function PlumbingServices(): React.JSX.Element {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <ScrollReveal className="order-2 lg:order-1">
             <figure className="relative overflow-hidden rounded-3xl shadow-2xl shadow-ink/15 ring-1 ring-line">
-              <div className="relative aspect-[4/3]">
+              <div className="relative aspect-[4/3] max-h-[400px]">
                 <Image
                   src="/images/plumbing.jpg"
                   alt="Mend plumber repairing pipework beneath a bathroom water heater in an Austin-area home"
                   fill
                   sizes="(min-width: 1024px) 36rem, 100vw"
+                  unoptimized
                   className="object-cover"
                 />
               </div>
