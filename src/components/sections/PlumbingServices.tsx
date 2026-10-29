@@ -39,7 +39,7 @@ export default function PlumbingServices(): React.JSX.Element {
       <div className="container-max">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <ScrollReveal className="order-2 lg:order-1">
-            <figure className="relative overflow-hidden rounded-3xl shadow-2xl shadow-ink/15 ring-1 ring-line">
+            <figure className="relative mx-auto w-full max-w-[800px] overflow-hidden rounded-3xl shadow-2xl shadow-ink/15 ring-1 ring-line">
               <div className="relative aspect-[4/3] max-h-[400px] w-full">
                 <Image
                   src="/images/plumbing.jpg"
