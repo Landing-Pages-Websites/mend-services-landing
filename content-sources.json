@@ -8,7 +8,7 @@
     { "claim": "Whole-home HVAC, plumbing and electrical under one roof", "source_url": "https://mendservices.com/", "verified": true },
     { "claim": "Free estimates on system replacements", "source_url": "https://mendservices.com/", "verified": true },
     { "claim": "'We live and work here too' / 'Trade Up' experience — real communication, showing up when promised", "source_url": "https://mendservices.com/", "verified": true },
-    { "claim": "Campaign phone number (737) 249-6457 (CTM-tracked Google Ads number)", "source_url": "Mend Google Ads campaign brief", "verified": true },
+    { "claim": "Authored landing-page phone number (737) 238-5558", "source_url": "https://admin.gomega.ai/tasks/6d69b227-649c-4a7c-aa0a-3e6890294206", "verified": true, "verification_scope": "Explicitly authorized LP display, fallback tel links and telephone metadata only; CTM forwarding and live-call connectivity are separate Instrumentation checks, not verified by this record.", "supersedes": "Historical campaign brief phone (737) 249-6457; existing CTM scripts and account-side routing remain unchanged." },
     { "claim": "Serves Greater Austin: Austin, Round Rock, Cedar Park, Leander, Pflugerville, Georgetown, Kyle, Buda, Lakeway, Bee Cave, Dripping Springs, Hutto, Manor, San Marcos, Spicewood, Wimberley", "source_url": "https://mendservices.com/service-areas/", "verified": true }
   ],
   "testimonials": [
