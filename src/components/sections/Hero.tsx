@@ -36,7 +36,7 @@ export default function Hero(): React.JSX.Element {
           </span>
 
           <h1 className="mt-5 max-w-2xl font-display text-4xl font-extrabold uppercase leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
-            Austin Heat Won&apos;t Wait.{" "}
+            Home Repairs Won&apos;t Wait.{" "}
             <span className="text-brand-400">Neither Do We.</span>
           </h1>
         </div>
@@ -51,9 +51,9 @@ export default function Hero(): React.JSX.Element {
             form on mobile; stacks under the headline in the left column on lg. */}
         <div className="animate-fade-up lg:col-span-7 lg:col-start-1 lg:row-start-2">
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/85">
-            When your AC quits in the Texas heat, you need a licensed master tech today —
-            not next week. Mend delivers same-day air conditioning repair, plus
-            whole-home plumbing and electrical, backed by a one-year parts &amp; labor
+            When your AC, plumbing or electrical quits, you need a licensed master tech today —
+            not next week. Mend delivers same-day HVAC, plumbing and electrical service,
+            backed by a one-year parts &amp; labor
             warranty and a 4.9-star reputation. We live and work here too.
           </p>
 
