@@ -55,8 +55,25 @@ function isQualified(data: FormState): boolean {
   );
 }
 
+const PHONE_LENGTH = 10;
+const US_COUNTRY_CODE = "1";
+
+// Strips non-digits; drops a leading US country code only from exactly 11 digits.
+function phoneDigits(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  const hasCountryCode =
+    digits.length === PHONE_LENGTH + 1 && digits.startsWith(US_COUNTRY_CODE);
+  return hasCountryCode ? digits.slice(US_COUNTRY_CODE.length) : digits;
+}
+
+function isValidPhone(value: string): boolean {
+  return phoneDigits(value).length === PHONE_LENGTH;
+}
+
 function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
+  const digits = phoneDigits(value);
+  // Never truncate: overlong input stays exactly as typed so validation can flag it.
+  if (digits.length > PHONE_LENGTH) return value;
   if (digits.length < 4) return digits;
   if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
@@ -68,7 +85,7 @@ function validate(data: FormState): Errors {
   if (!data.lastName.trim()) errors.lastName = "Enter your last name";
   if (!data.email.trim()) errors.email = "Enter your email";
   else if (!EMAIL_RE.test(data.email)) errors.email = "Enter a valid email";
-  if (data.phone.replace(/\D/g, "").length < 10)
+  if (!isValidPhone(data.phone))
     errors.phone = "Enter a valid 10-digit phone number";
   if (!data.decisionMaker) errors.decisionMaker = "Please choose one";
   if (!data.serviceTiming) errors.serviceTiming = "Please choose one";
@@ -148,6 +165,8 @@ export default function LeadForm({
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (inFlightRef.current || status === "submitting") return;
+    const found = validate(data); // Native requestSubmit() skips onSubmitClick.
+    if (Object.keys(found).length > 0) return setErrors(found);
     // Synchronous in-flight lock blocks rapid duplicate submits before the await yields.
     inFlightRef.current = true;
     setStatus("submitting");
