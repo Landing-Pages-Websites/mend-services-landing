@@ -3,11 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, ShieldCheck, Phone } from "lucide-react";
-import { useMegaLeadForm } from "@/hooks/useMegaLeadForm";
+import { PHONE_INVALID, useMegaLeadForm } from "@/hooks/useMegaLeadForm";
 import { PHONE_DISPLAY, PHONE_TEL } from "@/components/ui/cta";
+import {
+  EMAIL_ERROR,
+  EMAIL_MAX_LENGTH,
+  EMAIL_PATTERN,
+  PHONE_PATTERN,
+  formatPhone,
+  isValidEmail,
+  isValidPhone,
+} from "@/lib/fields";
 
 const FORM_ID = "mend-lead-form";
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const DECISION_OPTIONS = ["Yes", "No"] as const;
 const TIMING_OPTIONS = ["Immediate service", "Just exploring"] as const;
@@ -55,41 +63,39 @@ function isQualified(data: FormState): boolean {
   );
 }
 
-const PHONE_LENGTH = 10;
-const US_COUNTRY_CODE = "1";
-
-// Strips non-digits; drops a leading US country code only from exactly 11 digits.
-function phoneDigits(value: string): string {
-  const digits = value.replace(/\D/g, "");
-  const hasCountryCode =
-    digits.length === PHONE_LENGTH + 1 && digits.startsWith(US_COUNTRY_CODE);
-  return hasCountryCode ? digits.slice(US_COUNTRY_CODE.length) : digits;
-}
-
-function isValidPhone(value: string): boolean {
-  return phoneDigits(value).length === PHONE_LENGTH;
-}
-
-function formatPhone(value: string): string {
-  const digits = phoneDigits(value);
-  // Never truncate: overlong input stays exactly as typed so validation can flag it.
-  if (digits.length > PHONE_LENGTH) return value;
-  if (digits.length < 4) return digits;
-  if (digits.length < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
 function validate(data: FormState): Errors {
   const errors: Errors = {};
   if (!data.firstName.trim()) errors.firstName = "Enter your first name";
   if (!data.lastName.trim()) errors.lastName = "Enter your last name";
   if (!data.email.trim()) errors.email = "Enter your email";
-  else if (!EMAIL_RE.test(data.email)) errors.email = "Enter a valid email";
-  if (!isValidPhone(data.phone))
-    errors.phone = "Enter a valid 10-digit phone number";
+  else if (!isValidEmail(data.email)) errors.email = "Enter a valid email";
+  if (!isValidPhone(data.phone)) errors.phone = PHONE_INVALID;
   if (!data.decisionMaker) errors.decisionMaker = "Please choose one";
   if (!data.serviceTiming) errors.serviceTiming = "Please choose one";
   return errors;
+}
+
+function toFormData(
+  data: FormState,
+  qualified: boolean,
+  tracking: Record<string, string>
+): Record<string, string> {
+  return {
+    firstName: data.firstName.trim(),
+    lastName: data.lastName.trim(),
+    email: data.email.trim(),
+    phone: data.phone.trim(),
+    decisionMaker: data.decisionMaker,
+    serviceTiming: data.serviceTiming,
+    leadQuality: qualified ? "qualified" : "disqualified",
+    ...tracking,
+  };
+}
+
+// The browser tooltip is off (noValidate), so move focus to the first bad field.
+function focusFirstInvalid(form: HTMLFormElement | null, errors: Errors): void {
+  const first = (Object.keys(EMPTY) as (keyof FormState)[]).find((key) => errors[key]);
+  if (first) form?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
 }
 
 function pushDataLayer(event: string, qualified: boolean): void {
@@ -148,49 +154,47 @@ export default function LeadForm({
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  // Validate first, then hand off to the form's submit handler.
-  const onSubmitClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    if (inFlightRef.current || status === "submitting") {
-      e.preventDefault();
-      return;
-    }
+  // Returns true when the form is valid; otherwise shows the errors and focuses the first.
+  const checkFields = (): boolean => {
     const found = validate(data);
-    if (Object.keys(found).length > 0) {
-      e.preventDefault();
-      setErrors(found);
-      formRef.current?.reportValidity();
-    }
+    if (Object.keys(found).length === 0) return true;
+    setErrors(found);
+    focusFirstInvalid(formRef.current, found);
+    return false;
+  };
+
+  // Validate first, then hand off to the form's native submit via requestSubmit().
+  const onSubmitClick = (): void => {
+    if (inFlightRef.current || status === "submitting") return;
+    if (checkFields()) formRef.current?.requestSubmit();
   };
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (inFlightRef.current || status === "submitting") return;
-    const found = validate(data); // Native requestSubmit() skips onSubmitClick.
-    if (Object.keys(found).length > 0) return setErrors(found);
+    if (!checkFields()) return; // Any other native submit path skips onSubmitClick.
     // Synchronous in-flight lock blocks rapid duplicate submits before the await yields.
     inFlightRef.current = true;
     setStatus("submitting");
 
     const qualified = isQualified(data);
 
+    let accepted = false;
     try {
-      await submit({
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        email: data.email.trim(),
-        phone: data.phone.trim(),
-        decisionMaker: data.decisionMaker,
-        serviceTiming: data.serviceTiming,
-        leadQuality: qualified ? "qualified" : "disqualified",
-        ...tracking,
-      });
-
-      trackSubmission(qualified, data);
-      router.push("/thank-you");
+      const result = await submit(toFormData(data, qualified, tracking));
+      accepted = result?.ok === true;
     } catch {
+      // Rejected, malformed or unreachable: the hook throws, so `accepted` stays false.
+    }
+    // Success events and the redirect fire only for a lead the server accepted;
+    // otherwise keep the values and release the lock so the visitor can retry.
+    if (!accepted) {
       inFlightRef.current = false;
       setStatus("error");
+      return;
     }
+    trackSubmission(qualified, data);
+    router.push("/thank-you");
   };
 
   const submitting = status === "submitting";
@@ -254,7 +258,12 @@ export default function LeadForm({
             type="email"
             required
             autoComplete="email"
-            pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+            inputMode="email"
+            pattern={EMAIL_PATTERN}
+            maxLength={EMAIL_MAX_LENGTH}
+            spellCheck={false}
+            autoCapitalize="none"
+            title={EMAIL_ERROR}
             value={data.email}
             onChange={(e) => update("email", e.target.value)}
             className={inputClass(errors.email)}
@@ -269,8 +278,9 @@ export default function LeadForm({
             type="tel"
             required
             inputMode="numeric"
-            pattern="\(\d{3}\) \d{3}-\d{4}"
-            autoComplete="tel"
+            pattern={PHONE_PATTERN}
+            title={PHONE_INVALID}
+            autoComplete="tel-national"
             value={data.phone}
             onChange={(e) => update("phone", e.target.value)}
             className={inputClass(errors.phone)}
@@ -299,7 +309,7 @@ export default function LeadForm({
         />
 
         <button
-          type="submit"
+          type="button"
           onClick={onSubmitClick}
           disabled={busy}
           className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-6 py-4 font-display text-base font-bold uppercase tracking-wide text-ink shadow-lg shadow-ink/15 ring-1 ring-inset ring-brand-700/20 transition-all duration-200 hover:bg-brand-600 active:scale-[0.99] active:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
@@ -320,10 +330,12 @@ export default function LeadForm({
         {status === "error" && (
           <p className="text-center text-sm text-error" role="alert">
             Something went wrong. Please try again or call{" "}
-            <a href={PHONE_TEL} className="font-semibold underline">
-              {PHONE_DISPLAY}
-            </a>
-            .
+            <span className="whitespace-nowrap">
+              <a href={PHONE_TEL} className="font-semibold underline">
+                {PHONE_DISPLAY}
+              </a>
+              .
+            </span>
           </p>
         )}
 

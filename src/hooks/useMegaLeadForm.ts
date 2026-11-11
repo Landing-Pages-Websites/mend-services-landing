@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
+import { isValidEmail, isValidPhone, normalizeEmail, phoneDigits } from "@/lib/fields";
 
 // Lead routing is keyed off SITE_ID on the MEGA side (→ ServiceTitan CRM + email
 // to the Mend team). customer_id is NOT resolved server-side from the site — the
@@ -11,6 +12,10 @@ const CONFIG = {
   SOURCE_PROVIDER: "mend-services-landing",
   ENDPOINT: "https://analytics.gomega.ai/submission/submit",
 };
+
+// The page's authored phone message (the shared module's PHONE_ERROR adds "US").
+export const PHONE_INVALID = "Enter a valid 10-digit phone number";
+const EMAIL_INVALID = "Enter a valid email address";
 
 const STORAGE_KEYS = {
   VISITOR_ID: "_mega_vid",
@@ -55,7 +60,7 @@ interface SubmissionPayload {
 }
 
 interface SubmissionResponse {
-  ok: boolean;
+  ok: true;
   id?: string;
 }
 
@@ -141,6 +146,60 @@ const captureAttribution = (): Attribution => {
   return stored ? JSON.parse(stored) : attribution;
 };
 
+// Defense in depth: the same shared rules the form gates on, applied to every
+// submit() call. The phone is sent as its 10 national digits, the email trimmed
+// with only the domain lowercased.
+const normalizeLeadFields = (
+  formData: Record<string, unknown>
+): Record<string, unknown> => {
+  const phone = String(formData.phone ?? "");
+  if (!isValidPhone(phone)) throw new Error(PHONE_INVALID);
+  if (!isValidEmail(formData.email)) throw new Error(EMAIL_INVALID);
+  return {
+    ...formData,
+    email: normalizeEmail(String(formData.email)),
+    phone: phoneDigits(phone),
+  };
+};
+
+const postSubmission = async (payload: SubmissionPayload): Promise<Response> => {
+  try {
+    return await fetch(CONFIG.ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    throw new Error("Submission failed: network error", { cause: error });
+  }
+};
+
+const isAcceptedBody = (body: unknown): body is SubmissionResponse =>
+  typeof body === "object" &&
+  body !== null &&
+  !Array.isArray(body) &&
+  (body as { ok?: unknown }).ok === true;
+
+// A lead counts only when the HTTP status succeeds AND the parsed body says
+// ok === true; anything else (malformed JSON, null, missing/false/"true") throws.
+const readAcceptedResponse = async (
+  response: Response
+): Promise<SubmissionResponse> => {
+  if (!response.ok) {
+    throw new Error(`Submission failed: ${response.status}`);
+  }
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch (error) {
+    throw new Error("Submission failed: invalid JSON response", { cause: error });
+  }
+  if (!isAcceptedBody(body)) {
+    throw new Error("Submission failed: lead not accepted by the server");
+  }
+  return body;
+};
+
 export const useMegaLeadForm = (): UseMegaLeadFormReturn => {
   const attributionRef = useRef<Attribution | null>(null);
 
@@ -150,13 +209,14 @@ export const useMegaLeadForm = (): UseMegaLeadFormReturn => {
 
   const submit = useCallback(
     async (formData: Record<string, unknown>): Promise<SubmissionResponse> => {
+      const fields = normalizeLeadFields(formData);
       const attribution = attributionRef.current || captureAttribution();
 
       const payload: SubmissionPayload = {
         customer_id: CONFIG.CUSTOMER_ID,
         site_id: CONFIG.SITE_ID,
         source_provider: CONFIG.SOURCE_PROVIDER,
-        form_data: formData,
+        form_data: fields,
         url: typeof window !== "undefined" ? window.location.href : "",
         referrer_url:
           typeof document !== "undefined" ? document.referrer || null : null,
@@ -165,17 +225,7 @@ export const useMegaLeadForm = (): UseMegaLeadFormReturn => {
         ...attribution,
       };
 
-      const response = await fetch(CONFIG.ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Submission failed: ${response.status}`);
-      }
-
-      return { ok: true, id: (await response.json()).id };
+      return readAcceptedResponse(await postSubmission(payload));
     },
     []
   );
