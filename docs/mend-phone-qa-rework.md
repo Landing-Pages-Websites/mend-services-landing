@@ -10,7 +10,7 @@ QA Rubric 4 against production `6ad6e30` (PR #8):
 
 - The legacy `useMegaLeadForm` hook returned a made-up `{ ok: true }` for any HTTP 2xx, so
   HTTP 200 `{ ok: false }` was treated as accepted. Both form instances (hero and
-  `#form`) then fired success tracking and redirected to `/thank-you` after a rejection.
+  `#request-service`) then fired success tracking and redirected to `/thank-you` after a rejection.
 - The weak email check accepted `a..b@domain.com`.
 - The length-only phone check accepted `(123) 456-7890`.
 
@@ -32,6 +32,22 @@ Labels, options, field order, inline copy, classes, layout, event names, qualifi
 logic and the `/thank-you` destination are unchanged. The only new user-facing text is the
 canonical `title` hover tooltips on the email field (the module's `EMAIL_ERROR`) and the
 phone field (the authored phone error).
+
+## Keyboard submission (round 3)
+
+The exact-head org review of PR #9 at `0706efc1cf5faec673bb053c96b69ab399906b4f`
+(CHANGES_REQUESTED, P1) found that both instances, hero and `#request-service`, could no
+longer be submitted by pressing Enter in a field. The only button is `type="button"`, and a
+form with no submit button and several text fields never submits implicitly. The round-2
+evidence note "implicit Enter does not submit" described this defect and is **superseded**.
+
+The submit pattern stays `type="button"`, validate first, then `requestSubmit()`. Pressing
+Enter in First name, Last name, Email or Phone now prevents the default and runs the same
+handler as the button click. Invalid input shows the errors, focuses the first one and
+dispatches no native submit or lead request. The handler ignores Enter during IME
+composition, held (repeated) Enter, modified Enter and every other key. Radio buttons are not
+wired. The in-flight lock, the native `onSubmit` re-validation and the accepted-body/error
+behavior are unchanged.
 
 ## Phone behavior
 

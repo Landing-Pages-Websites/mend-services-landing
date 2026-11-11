@@ -21,6 +21,8 @@ const DECISION_OPTIONS = ["Yes", "No"] as const;
 const TIMING_OPTIONS = ["Immediate service", "Just exploring"] as const;
 const QUALIFYING_DECISION = "Yes";
 const QUALIFYING_TIMING = "Immediate service";
+// keyCode some browsers report for the Enter that commits an IME composition.
+const IME_PROCESS_KEY_CODE = 229;
 
 // Attribution params persisted from the URL into hidden form fields.
 const TRACKED_PARAMS = [
@@ -169,6 +171,16 @@ export default function LeadForm({
     if (checkFields()) formRef.current?.requestSubmit();
   };
 
+  // With no submit button the browser never submits on Enter, so a plain Enter in a
+  // text field takes the same validate-first path as the button.
+  const onFieldKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key !== "Enter" || e.repeat) return;
+    if (e.nativeEvent.isComposing || e.keyCode === IME_PROCESS_KEY_CODE) return;
+    if (e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
+    e.preventDefault();
+    onSubmitClick();
+  };
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (inFlightRef.current || status === "submitting") return;
@@ -232,6 +244,7 @@ export default function LeadForm({
               autoComplete="given-name"
               value={data.firstName}
               onChange={(e) => update("firstName", e.target.value)}
+              onKeyDown={onFieldKeyDown}
               className={inputClass(errors.firstName)}
               placeholder="Jane"
             />
@@ -245,6 +258,7 @@ export default function LeadForm({
               autoComplete="family-name"
               value={data.lastName}
               onChange={(e) => update("lastName", e.target.value)}
+              onKeyDown={onFieldKeyDown}
               className={inputClass(errors.lastName)}
               placeholder="Doe"
             />
@@ -266,6 +280,7 @@ export default function LeadForm({
             title={EMAIL_ERROR}
             value={data.email}
             onChange={(e) => update("email", e.target.value)}
+            onKeyDown={onFieldKeyDown}
             className={inputClass(errors.email)}
             placeholder="jane@email.com"
           />
@@ -283,6 +298,7 @@ export default function LeadForm({
             autoComplete="tel-national"
             value={data.phone}
             onChange={(e) => update("phone", e.target.value)}
+            onKeyDown={onFieldKeyDown}
             className={inputClass(errors.phone)}
             placeholder="(737) 555-0199"
           />
